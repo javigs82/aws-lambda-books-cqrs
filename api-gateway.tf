@@ -12,9 +12,11 @@ module "api_gateway" {
     allow_origins = ["*"]
   }
 
-  create_api_domain_name = false
+  create_api_domain_name         = false
+  create_default_stage           = true
+  create_routes_and_integrations = true
 
-  default_stage_access_log_destination_arn = aws_cloudwatch_log_group.logs.arn
+  default_stage_access_log_destination_arn = aws_cloudwatch_log_group.this.arn
   default_stage_access_log_format          = "$context.identity.sourceIp - - [$context.requestTime] \"$context.httpMethod $context.routeKey $context.protocol\" $context.status $context.responseLength $context.requestId $context.integrationErrorMessage"
 
   default_route_settings = {
@@ -22,6 +24,17 @@ module "api_gateway" {
     throttling_burst_limit   = 100
     throttling_rate_limit    = 100
   }
+
+  authorizers = {
+    "jwt_authorizer" = {
+      authorizer_type  = var.jwt_authorizer.type
+      identity_sources = var.jwt_authorizer.identity_sources
+      name             = var.jwt_authorizer.name
+      audience         = var.jwt_authorizer.audience
+      issuer           = var.jwt_authorizer.issuer
+    }
+  }
+
 
   integrations = {
     "ANY /" = {
@@ -39,7 +52,7 @@ module "api_gateway" {
       payload_format_version   = "2.0"
       authorization_type       = "JWT"
       timeout_milliseconds     = 12000
-      authorizer_id            = aws_apigatewayv2_authorizer.auth0.id
+      authorizer_key           = "jwt_authorizer"
       throttling_rate_limit    = 80
       throttling_burst_limit   = 40
       detailed_metrics_enabled = true
@@ -55,19 +68,7 @@ module "api_gateway" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "logs" {
-  name = "/aws/apigw/${var.cmp_name}"
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/aws/apigw/${var.cmp_name}"
   retention_in_days = var.cloudwatch_logs_retention_in_days
-}
-
-resource "aws_apigatewayv2_authorizer" "auth0" {
-  api_id           = module.api_gateway.apigatewayv2_api_id
-  authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Authorization"]
-  name             = "auth0"
-
-  jwt_configuration {
-    audience = ["https://auth0-jwt-authorizer"]
-    issuer   = var.api_gateway_jwt_authorizer_issuer
-  }
 }

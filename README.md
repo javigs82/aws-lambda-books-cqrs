@@ -92,6 +92,16 @@ make terraform-apply
 
 ```
 
+## Known Limitations
+
+Due to an issue on aws api gateway, in order to deploy the solution,
+devops can:
+ - run twice `make terraform-apply`
+ - set parallelis=1 that impacts of performance
+
+See more info about the bug [here](https://github.com/hashicorp/terraform-provider-aws/issues/18018)
+and [here](https://github.com/goldstack/goldstack/issues/40)
+
 ## References
 
  - https://auth0.com/blog/securing-aws-http-apis-with-jwt-authorizers/
