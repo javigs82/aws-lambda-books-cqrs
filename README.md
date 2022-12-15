@@ -32,7 +32,6 @@ to be assumed:
 
 Following Image describes the architecture implemented in this component.
 
-### Cloud
 
 ### IaaC
 
@@ -44,9 +43,20 @@ For this component, following terraform aws comunity modules are used:
  - [aws lambdas](https://registry.terraform.io/modules/terraform-aws-modules/lambda/aws/latest)
  - [aws api-gateway v2](https://registry.terraform.io/modules/terraform-aws-modules/apigateway-v2/aws/latest)
 
-### Python
+### Identity Provider
+
+This projects uses OIDC and Oauth as Identity Standar integrated in AWS on top
+of [Api Gateway JWT Authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html). 
+
+As identity provider, [Auth0](https://auth0.com/) is the preferred one.
+
+Check the issuer here:
+
+> https://dev-jnunrkz8y4jtwkaz.eu.auth0.com/.well-known/openid-configuration
 
 ## CI/CD
+
+TBC
 
 ## How to run
 
@@ -70,7 +80,7 @@ To publish a new container in ECR, you can run:
 
 ```bash
 
-make aws-lambda-delivery
+make docker-delivery
 
 ```
 
@@ -78,11 +88,13 @@ To provision the infrastruture, you can run:
 
 ```bash
 
-make aws-lambda-provision
+make terraform-apply
 
 ```
 
 ## References
+
+ - https://auth0.com/blog/securing-aws-http-apis-with-jwt-authorizers/
 
 ## Author
 
