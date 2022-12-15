@@ -1,37 +1,81 @@
 # Books CQRS on top of AWS Lambda
 
-Example of how to deploy an AWS lambda as IaaC , written in terrafom and orchestrated by makefiles to provide more extensibily and reproductivily in terms of ci/cd.
+Serverless example that demostrates how to deploy multiples serverless solutions behind an api gateway, fully IaaC and written in terrafom while being orchestrated by makefiles providing more not only linux friendship but extensible, and reproductible and definitly more reliable, at least in terms of ci/cd.
 
-The repo aims to define a CQRS on top of AWS Lambdas and API Gateway, containing
-two services: The command and The query writen in python and delivered in Docker to ECR.
+The repo aims to define a CQRS `fake` implementation on top of AWS Lambdas, API Gateway and [OpenIDConnect](https://openid.net/connect/).
 
-## Requirements
+## Assumptions
+
+  - CQRS Implementation: The objective of this exercise is oriented to the deployment and its automation so for that **api responses are hardcoded**
+
+  - AWS Authentication: In order to run this projtec, devops must be properly authneticated in AWS. At the time of written, [aws-vault](https://github.com/99designs/aws-vault) could be the solution.
+  `AWS_SESSION_TOKEN` is what your are looking for.
+
+  - Terraform remote state is out of the scope. For this playground, local state is mandatory. Please not that infra must be destroyed at the end of the work.
+
+  - Command and Query functionality is out of the scope. One can query and the other one can write.
+
+  - Authentication: For the purpose of this exercise,`GET` is publica while `POST` involves:
+    - Create an OpenIdConnect provider and replace the var called `jwt_authorizer` in [variables.tf](./variables.tf) with your own provider
+
+  - Due to a **known limitation** with terraform and api-gateway, *devops engineers* need 
+    - run twice `make terraform-apply`
+    - set parallelism=1in terraform commands (TF_PARALLELISM) that actually impacts on performance
+
+## Main Requirements
 
 Following requirements are a must
- - HTTP Interface
+ - Read and Write books in the catalog 
+ providing customers with the most elegan solutions for any books catalog
+ - HTTP Interface for both, `comand and query`
  - Separation of concerns: Command and Query Services
  - Use of AWS Lambdas on top of Docker
  - IaaC: All infra as a code
  - Logging: On top of CloudWatch
- - Auth: On top of API Gateway
+ - Auth: On top of API Gateway (JWT Authorizer)
  - Continuous Integration and Delivery: ECR
  - Deployment: One click deployment on top of make commands
 
 
-### Assumptions
+## Dependecies
 
-AS this repository try to show how to implement things, some points need
-to be assumed:
+In order to be able to execute commands, following dependencies must be properly installed.
 
-  - AWS Authentication: In order to deploy this component, devops must be properly authneticated in AWS. At the time of written, [aws-vault](https://github.com/99designs/aws-vault) is the current solution.
+ - Linux :)
+ - python 3.8
+ - pip
+ - terraform 1.3.6
+  - docker
 
-  - Terraform remote state is out of the scope. For this playground, local state is mandatory. Please not that infra must be destroyed at the end of the work.
+## How to use
 
+### Continuous Integration and Delivery
+
+In order to run ci/cd, the app is going to be built firstly:
+
+> make docker-build
+
+And then delivered
+
+> make docker-delivery
+
+
+### Deployment
+
+Once the [semantic versioning](https://semver.org/) defined in [version.txt] has been delivered, the deployment part is ready to be rolled out.
+
+> make terraform init
+> make terraform-deploy
+
+To destroy the infra, please run:
+
+> make terraform-destroy
+
+**Note** that lambdas are being able to be rolled out because `image_uri` points to their `sha256` value.
 
 ## Architecture
 
 Following Image describes the architecture implemented in this component.
-
 
 ### IaaC
 
@@ -45,52 +89,49 @@ For this component, following terraform aws comunity modules are used:
 
 ### Identity Provider
 
-This projects uses OIDC and Oauth as Identity Standar integrated in AWS on top
-of [Api Gateway JWT Authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html). 
+This projects uses `OIDC` and `oAuth` as Identity Standar Solution as well as integrated in AWS on top of [Api Gateway JWT Authorizers](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html). 
 
-As identity provider, [Auth0](https://auth0.com/) is the preferred one.
+For this exercise the identity provider, [Auth0](https://auth0.com/) is the preferred one.
 
 Check the issuer here:
 
 > https://dev-jnunrkz8y4jtwkaz.eu.auth0.com/.well-known/openid-configuration
 
-## CI/CD
+## Knonw Limitations
 
-TBC
+Due to an issue on aws api gateway, in order to deploy the solution, devops have to deal with one of the followinf situation:
+  - run twice `make terraform-apply` *OR*
+  - set parallelis=1 that impacts of performance
 
-## How to run
+Following output shows the case:
 
-In order to run this project in localhost, developers must be authenticated in aws.
-For more info, please visit aws offcial doc.
-
-A set of `ENV_VARS` needed for this projtec are defined in the Makefile at root folder level.
-Some of them can be overwriten to comply with any multi environment requirement.
-
-### Dependecies
-In order to be able to execute commands, following dependencies must be properly installed.
-
- - docker
- - python 3.9
- - pip
- - terraform 1.2.8
-    
-### Main Commands
-
-To publish a new container in ECR, you can run:
-
-```bash
-
-make docker-delivery
+```
+module.api_gateway.aws_apigatewayv2_route.this["$default"]: Creation complete after 1s [id=5lf15gi]
+╷
+│ Error: creating API Gateway v2 stage: NotFoundException: Unable to find Route by key POST /v1/catalog/books within the provided RouteSettings
+│ {
+│   RespMetadata: {
+│     StatusCode: 404,
+│     RequestID: "7e9f60dd-ae77-47c4-a1ed-4e806a084837"
+│   },
+│   Message_: "Unable to find Route by key POST /v1/catalog/books within the provided RouteSettings"
+│ }
+│ 
+│   with module.api_gateway.aws_apigatewayv2_stage.default[0],
+│   on .terraform/modules/api_gateway/main.tf line 63, in resource "aws_apigatewayv2_stage" "default":
+│   63: resource "aws_apigatewayv2_stage" "default" {
+│ 
+╵
+╷
+│ Error: error creating API Gateway v2 route: ConflictException: Unable to complete operation due to concurrent modification. Please try again later.
+│ 
+│   with module.api_gateway.aws_apigatewayv2_route.this["GET /v1/catalog/books/{id}"],
+│   on .terraform/modules/api_gateway/main.tf line 124, in resource "aws_apigatewayv2_route" "this":
+│  124: resource "aws_apigatewayv2_route" "this" {
 
 ```
 
-To provision the infrastruture, you can run:
-
-```bash
-
-make terraform-apply
-
-```
+See more info about the bug [here](https://github.com/hashicorp/terraform-provider-aws/issues/18018)
 
 ## References
 

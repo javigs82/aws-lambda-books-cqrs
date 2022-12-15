@@ -20,29 +20,21 @@ variable "cloudwatch_logs_retention_in_days" {
   default     = 0
 }
 
-variable "api_gateway_jwt_authorizer_issuer" {
-  description = "This is the OIDC issuer"
-  default     = "https://dev-jnunrkz8y4jtwkaz.eu.auth0.com/"
+
+variable "jwt_authorizer" {
+  description = "JWT Authorizer Object"
+  type = object({
+    name             = string
+    type             = string
+    identity_sources = list(string)
+    audience         = list(string)
+    issuer           = string
+  })
+  default = {
+    name             = "auth0"
+    type             = "JWT"
+    identity_sources = ["$request.header.Authorization"]
+    audience         = ["https://auth0-jwt-authorizer"]
+    issuer           = "https://dev-jnunrkz8y4jtwkaz.eu.auth0.com/" #important last slash
+  }
 }
-
-variable "routes" {
-  description = "List of object to parametrize Routes"
-  type = list(
-    object(
-      {
-        http_verb              = string
-        public_uri             = string
-        private_uri            = string
-        timeout_milliseconds   = number
-        lambda_name            = string
-        authorizer_name        = string
-        throttling_burst_limit = number
-        throttling_rate_limit  = number
-        payload_format_version = string
-      }
-    )
-  )
-  default = []
-}
-
-
