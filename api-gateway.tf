@@ -42,12 +42,12 @@ module "api_gateway" {
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
     }
-    "GET /v1/books/{id}" = {
+    "GET /v1/catalog/books/{id}" = {
       lambda_arn             = module.lambda_query.lambda_function_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
     }
-    "POST /v1/books" = {
+    "POST /v1/catalog/books" = {
       lambda_arn               = module.lambda_command.lambda_function_arn
       payload_format_version   = "2.0"
       authorization_type       = "JWT"

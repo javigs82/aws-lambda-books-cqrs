@@ -9,7 +9,7 @@ API_URL=https://pinocho.execute-api.eu-south-2.amazonaws.com
 
 function testQuery() {
   echo 'Test Query' 
-  curl -i $API_URL/v1/books/2
+  curl -i $API_URL/v1/catalog/books/2
 }
 
 function testCommand() {
@@ -19,7 +19,7 @@ function testCommand() {
     -X POST \
     -i \
     -d '{"name": "Book Name", "description": "Book Description"}' \
-    $API_URL/v1/books
+    $API_URL/catalog/v1/books
 }
 
 

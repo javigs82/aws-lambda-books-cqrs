@@ -38,25 +38,3 @@ variable "jwt_authorizer" {
     issuer           = "https://dev-jnunrkz8y4jtwkaz.eu.auth0.com/" #important last slash
   }
 }
-
-variable "routes" {
-  description = "List of object to parametrize Routes"
-  type = list(
-    object(
-      {
-        http_verb              = string
-        public_uri             = string
-        private_uri            = string
-        timeout_milliseconds   = number
-        lambda_name            = string
-        authorizer_name        = string
-        throttling_burst_limit = number
-        throttling_rate_limit  = number
-        payload_format_version = string
-      }
-    )
-  )
-  default = []
-}
-
-
