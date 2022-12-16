@@ -1,6 +1,6 @@
 # Books CQRS on top of AWS Lambda
 
-Serverless example that demostrates how to deploy multiples serverless solutions behind an api gateway, fully IaaC and written in terrafom while being orchestrated by makefiles providing more not only linux friendship but extensible, and reproductible and definitly more reliable, at least in terms of ci/cd.
+Serverless example that demonstrates how to deploy multiples serverless solutions behind an api gateway, fully IaaC and written in terrafom while being orchestrated by makefiles providing more not only linux friendship but extensible, and reproductible and definitely more reliable, at least in terms of ci/cd.
 
 The repo aims to define a CQRS `fake` implementation on top of AWS Lambdas, API Gateway and [OpenIDConnect](https://openid.net/connect/).
 
@@ -8,14 +8,14 @@ The repo aims to define a CQRS `fake` implementation on top of AWS Lambdas, API 
 
   - CQRS Implementation: The objective of this exercise is oriented to the deployment and its automation so for that **api responses are hardcoded**
 
-  - AWS Authentication: In order to run this projtec, devops must be properly authneticated in AWS. At the time of written, [aws-vault](https://github.com/99designs/aws-vault) could be the solution.
-  `AWS_SESSION_TOKEN` is what your are looking for.
+  - AWS Authentication: In order to run this project, *devops* must be properly authenticated in AWS. At the time of written, [aws-vault](https://github.com/99designs/aws-vault) could be the solution.
+  `AWS_SESSION_TOKEN` is what you are looking for.
 
   - Terraform remote state is out of the scope. For this playground, local state is mandatory. Please not that infra must be destroyed at the end of the work.
 
   - Command and Query functionality is out of the scope. One can query and the other one can write.
 
-  - Authentication: For the purpose of this exercise,`GET` is publica while `POST` involves:
+  - Authentication: For the purpose of this exercise, `GET` is publica while `POST` involves:
     - Create an OpenIdConnect provider and replace the var called `jwt_authorizer` in [variables.tf](./variables.tf) with your own provider
 
   - Due to a **known limitation** with terraform and api-gateway, *devops engineers* need 
@@ -26,8 +26,8 @@ The repo aims to define a CQRS `fake` implementation on top of AWS Lambdas, API 
 
 Following requirements are a must
  - Read and Write books in the catalog 
- providing customers with the most elegan solutions for any books catalog
- - HTTP Interface for both, `comand and query`
+ providing customers with the most elegant solutions for any books catalog
+ - HTTP Interface for both, `command and query`
  - Separation of concerns: Command and Query Services
  - Use of AWS Lambdas on top of Docker
  - IaaC: All infra as a code
@@ -37,9 +37,9 @@ Following requirements are a must
  - Deployment: One click deployment on top of make commands
 
 
-## Dependecies
+## Dependencies
 
-In order to be able to execute commands, following dependencies must be properly installed.
+In order to be able to execute commands, the following dependencies must be properly installed.
 
  - Linux :)
  - python 3.8
