@@ -65,6 +65,7 @@ And then delivered
 Once the [semantic versioning](https://semver.org/) defined in [version.txt] has been delivered, the deployment part is ready to be rolled out.
 
 > make terraform init
+
 > make terraform-deploy
 
 To destroy the infra, please run:
@@ -73,9 +74,25 @@ To destroy the infra, please run:
 
 **Note** that lambdas are being able to be rolled out because `image_uri` points to their `sha256` value.
 
+### Test
+
+In the folder called test, there is a bash script to test query and command endpoints.
+Query is open and Command is authenticated by JWT Authroizer on top of `oAuth0`
+
+Open the file and set the proper values for:
+
+ - `TEST_ACCESS_TOKEN`: Obtained from your IdP
+ - `API_URL`: Obtained as terraform output
+
+then run:
+
+> bash ./test/integration-test.sh
+
 ## Architecture
 
 Following Image describes the architecture implemented in this component.
+
+![image info](./img/AWS_Books_CQRS.png)
 
 ### IaaC
 
@@ -84,6 +101,7 @@ This components aims to be fully automated using terraform as IaaC tool and taki
 To work in terraform for production purposes involves to have an s3 bucket to store the tf_state file remotly and a dynamo db table for lockings. Due to the target of this project, this step is skiped.
 
 For this component, following terraform aws comunity modules are used:
+
  - [aws lambdas](https://registry.terraform.io/modules/terraform-aws-modules/lambda/aws/latest)
  - [aws api-gateway v2](https://registry.terraform.io/modules/terraform-aws-modules/apigateway-v2/aws/latest)
 
@@ -97,7 +115,7 @@ Check the issuer here:
 
 > https://dev-jnunrkz8y4jtwkaz.eu.auth0.com/.well-known/openid-configuration
 
-## Knonw Limitations
+## Known Limitations
 
 Due to an issue on aws api gateway, in order to deploy the solution, devops have to deal with one of the followinf situation:
   - run twice `make terraform-apply` *OR*
